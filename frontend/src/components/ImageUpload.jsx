@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainNav from "./MainNav";
 import "./Main.css";
+import {v4 as uuidv4} from 'uuid';
 
 const Logo = () => (
   <svg className="icon" x="0px" y="0px" viewBox="0 0 24 24">
@@ -82,19 +83,43 @@ const UploadBox = () => {
     const formData = new FormData();
     formData.append("file", file);
 
+    //사용자는 비회원/회원 상관없이 uuid로 식별하기
+    const UserId = uuidv4();
+    console.log(UserId);
+
+
+    //이미지 base64로 인코딩
+    const reader = new FileReader();
+    reader.onloadend = async ()=>{
+      const img = render.result;
+    }
+
+
+    const requestBody={
+      UserId,
+      img,
+    }
+
+
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch("http://SMWIK.com/input/post", {
         method: "POST",
-        body: formData,
+        headers:{
+          "Content-type":"application/json",
+        },
+        body: JSON.stringify(requestBody),
       });
       setLoading(true); // 로딩 상태 활성화
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Response JSON:', result); 
+        console.log('API 응답', result); 
 
-        navigate("/Select", {state: {image : result.img, coor: result.objects}}); // 업로드 성공 시 성공 페이지로 이동
-        setResponseMessage(`Upload successful: ${result.message}`);
+        const bboxes = result.bboxes
+        console.log("인식된 박스:",bboxes);
+  
+
+
       } else {
         const errorData = await response.json();
         setResponseMessage(`Upload failed: ${errorData.message}`);
