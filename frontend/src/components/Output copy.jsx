@@ -4,7 +4,7 @@ import "./Main.css";
 import MainNav from "./MainNav";
 import Confetti from 'react-confetti';
 
-import { Button } from '@nextui-org/react';
+import {Button} from '@nextui-org/react';
 import confetti from 'canvas-confetti';
 
 import tempImg from "../assets/temp2.jpg";
@@ -41,47 +41,47 @@ const Output = () => {
 
 
 
-    // useEffect(() => {
-    //     if (location.state && location.state.result) {
-    //         const base64Image = location.state.result;
+    useEffect(() => {
+        if (location.state && location.state.result) {
+            const base64Image = location.state.result;
 
-    //         if (!base64Image.startsWith("data:image/")) {
-    //             setImageSrc(`data:image/png;base64,${base64Image}`);
-    //         } else {
-    //             setImageSrc(base64Image);
-    //         }
-    //     } else {
-    //         setError("이미지가 전달되지 않았습니다.");
-    //     }
-    // }, [location.state]);
+            if (!base64Image.startsWith("data:image/")) {
+                setImageSrc(`data:image/png;base64,${base64Image}`);
+            } else {
+                setImageSrc(base64Image);
+            }
+        } else {
+            setError("이미지가 전달되지 않았습니다.");
+        }
+    }, [location.state]);
 
-    // const handleDownload = () => {
-    //     if (imageSrc) {
-    //         const link = document.createElement("a");
-    //         link.href = imageSrc; // 이미지 소스 (Base64 or URL)
-    //         link.download = "downloaded_image.jpg"; // 저장 파일명
-    //         link.click();
-    //     } else {
-    //         console.error("Image source is not available for download.");
-    //     }
-    // };
+    const handleDownload = () => {
+        if (imageSrc) {
+            const link = document.createElement("a");
+            link.href = imageSrc; // 이미지 소스 (Base64 or URL)
+            link.download = "downloaded_image.jpg"; // 저장 파일명
+            link.click();
+        } else {
+            console.error("Image source is not available for download.");
+        }
+    };
 
     // const handleGoToInsta = () => {
     //     navigate("/insta");
     // };
 
-    // const handleConfetti = () => {
-    //     confetti({
-    //         particleCount: 150, // 파티클 수
-    //         spread: 70, // 퍼짐 범위
-    //         origin: { x: 0.3, y: 0.5}, // 화면 중앙에서 효과 발생
-    //     });
-    //     confetti({
-    //         particleCount: 150, // 파티클 수
-    //         spread: 70, // 퍼짐 범위
-    //         origin: { x: 0.7, y: 0.5}, // 화면 중앙에서 효과 발생
-    //     });
-    // };
+    const handleConfetti = () => {
+        confetti({
+            particleCount: 150, // 파티클 수
+            spread: 70, // 퍼짐 범위
+            origin: { x: 0.3, y: 0.5}, // 화면 중앙에서 효과 발생
+        });
+        confetti({
+            particleCount: 150, // 파티클 수
+            spread: 70, // 퍼짐 범위
+            origin: { x: 0.7, y: 0.5}, // 화면 중앙에서 효과 발생
+        });
+    };
 
     // const shareKakao = () =>{
 
@@ -107,50 +107,6 @@ const Output = () => {
     //         });
     // }
 
-    // location.state가 undefined일 때 state는 { } 빈 객체로 설정됨
-        const state = location.state || {};
-    const outputType = state.result.outputType
-
-    const handleLog = () => {
-
-        console.log("가져온값1:",state);
-        console.log("가져온값접근:", state.result);
-        // const stateStr = JSON.stringify(state)
-        // const stateJson = JSON.parse(stateStr)
-        console.log("outputType:", outputType);
-    }
-
-    const outPutText = {
-        "success": true,
-        "message": "번역 완료",
-        "data": {
-            "userId": "user123",
-            "imageId": "img123...",
-            "translations": {
-                "1": "번역된 텍스트1",
-                "3": "번역된 텍스트3"
-            }
-        }
-    }
-
-    const outputImage = {
-
-        "success": true,
-        "message": "번역 및 이미지 합성 완료",
-        "data": {
-            "userId": "user123",
-            "imageId": "img123...",
-            "translatedImage": "ABC123...",
-            "translations": {
-                "1": "번역된 텍스트1",
-                "3": "번역된 텍스트3"
-            }
-        }
-
-    }
-
-
-
     return (
         <div>
             <MainNav />
@@ -175,29 +131,22 @@ const Output = () => {
 
                 <div className="text_output">
                     <h1>개인정보 안보임스!</h1>
-                    <Button onClick={handleLog}>log나와</Button>
                 </div>
                 <div className="result">
-                    {/* {imageSrc ? (
+                    {imageSrc ? (
                         <div className="result_img">
                             <img src={imageSrc} ref={imgRef} alt="Result" />
                         </div>
                     ) : (
                         <div className="loader"></div>
-                    )} */}
-
-                    {/* <pre>{JSON.stringify(state, null, 2)}</pre>                  */}
-
-{outputType===1?JSON.stringify(outPutText, null, 2):JSON.stringify(outputImage, null, 2)}
-
-
+                    )}
                 </div>
 
                 <div className="buttons">
                     <button className='share_button' onClick={() => {
-                        shareKakao()
-                    }}
-                    >
+                            shareKakao()
+                        }}
+                    >                     
                         <img className="share_icon" src={kakao} alt="Instagram" />
                     </button>
                     <Button
@@ -205,13 +154,12 @@ const Output = () => {
                         disableRipple
                         className="relative overflow-visible rounded-full hover:-translate-y-1 px-12 shadow-xl bg-background/30 after:content-[''] after:absolute after:rounded-full after:inset-0 after:bg-background/40 after:z-[-1] after:transition after:!duration-500 hover:after:scale-150 hover:after:opacity-0"
                         size="lg"
-                    // onPress={handleConfetti}
-                    // className = "share_button"
+                        onPress={handleConfetti}
+                        // className = "share_button"
                     >
                         <img className="share_icon" src={pangpang} alt="pangpang" />
                     </Button>
-                    {/* <button className="share_button" onClick={handleDownload}> */}
-                    <button className="share_button" >
+                    <button className="share_button" onClick={handleDownload}>
                         <img
                             className="share_icon"
                             src={downloadLogo}

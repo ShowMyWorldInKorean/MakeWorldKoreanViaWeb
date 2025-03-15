@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainNav from "./MainNav";
 import "./Main.css";
+import { v4 as uuidv4 } from 'uuid';
 
 const Logo = () => (
   <svg className="icon" x="0px" y="0px" viewBox="0 0 24 24">
@@ -47,11 +48,11 @@ const UploadBox = () => {
   const handleDrop = (event) => {
     event.preventDefault();
     setActive(false);
-  
+
     const file = event.dataTransfer.files[0];
     if (file) {
       processFile(file);
-  
+
       // <input>과 동기화
       const fileInput = document.querySelector(".file");
       if (fileInput) {
@@ -61,7 +62,7 @@ const UploadBox = () => {
       }
     }
   };
-  
+
 
   const handleUpload = ({ target }) => {
     const file = target.files[0];
@@ -70,41 +71,95 @@ const UploadBox = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    const fileInput = document.querySelector(".file");
-    const file = fileInput?.files[0];
+  const handleSubmit = () => {
+    // const fileInput = document.querySelector(".file");
+    // const file = fileInput?.files[0];
 
-    if (!file) {
-      alert("No file selected for upload.");
-      return;
+    // if (!file) {
+    //   alert("No file selected for upload.");
+    //   return;
+    // }
+
+    // const formData = new FormData();
+    // formData.append("file", file);
+
+    //사용자는 비회원/회원 상관없이 uuid로 식별하기
+    const userId = uuidv4();
+    console.log(userId);
+
+
+    //이미지 base64로 인코딩
+    // const reader = new FileReader();
+    // reader.onloadend = async ()=>{
+    //   const img = render.result;
+    // }
+    const originalImage = "sample"
+
+
+    const requestBody = {
+      userId,
+      originalImage,
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
 
-    try {
-      const response = await fetch("http://localhost:5000/upload", {
-        method: "POST",
-        body: formData,
-      });
-      setLoading(true); // 로딩 상태 활성화
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Response JSON:', result); 
-
-        navigate("/Select", {state: {image : result.img, coor: result.objects}}); // 업로드 성공 시 성공 페이지로 이동
-        setResponseMessage(`Upload successful: ${result.message}`);
-      } else {
-        const errorData = await response.json();
-        setResponseMessage(`Upload failed: ${errorData.message}`);
+    const result =  {
+      "success": true,
+      "message": "텍스트 감지 완료",
+      "data": {
+        "userId": userId,
+        "imageId": "img123...",
+        "detectedTextBlocks": {
+          "1": {
+            "bbox": [[10, 20], [100, 20], [100, 50], [10, 50]],
+            "detectedText": "감지된 원본 텍스트1"
+          },
+          "2": {
+            "bbox": [[150, 30], [300, 30], [300, 80], [150, 80]],
+            "detectedText": "감지된 원본 텍스트2"
+          },
+          "3": {
+            "bbox": [[150, 32], [300, 40], [140, 80], [299, 80]],
+            "detectedText": "감지된 원본 텍스트3"
+          },
+        }
       }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      setResponseMessage("An error occurred while uploading the file.");
-    } finally {
-      setLoading(false); // 로딩 상태 비활성화
-    }
+    } 
+
+    // try {
+    // const response = await fetch("http://SMWIK.com/input/post", {
+    //   method: "POST",
+    //   headers:{
+    //     "Content-type":"application/json",
+    //   },
+    //   body: JSON.stringify(requestBody),
+    // });
+    // setLoading(true); // 로딩 상태 활성화
+
+    // if (response.ok) {
+    //   const result = await response.json();
+    //   console.log('API 응답', result); 
+
+    //   const bboxes = result.bboxes
+    //   console.log("인식된 박스:",bboxes);
+
+
+    // navigate("/Select", {state: {image : result.img, coor: result.objects}}); // 업로드 성공 시 성공 페이지로 이동
+    navigate("/Select", {state:result}); // 업로드 성공 시 성공 페이지로 이동
+
+    setResponseMessage(`Upload successful: ${result.message}`);
+    console.log(result.message);
+    
+
+    //   } else {
+    //     const errorData = await response.json();
+    //     setResponseMessage(`Upload failed: ${errorData.message}`);
+    //   }
+    // } catch (error) {
+    //   console.error("Error uploading file:", error);
+    //   setResponseMessage("An error occurred while uploading the file.");
+    // } finally {
+    //   setLoading(false); // 로딩 상태 비활성화
+    // }
   };
 
   return (
@@ -118,47 +173,47 @@ const UploadBox = () => {
         </div>
       ) : (
         <div className="container">
-          <div className = "alert">
+          <div className="alert">
             <h2>개인정보 포함 여부를 검사할 사진을 선택해주세요.</h2>
           </div>
           <div>
-              <label
-                  className={`preview${isActive ? " active" : ""}`}
-                  onDragEnter={handleDragStart}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragEnd}
-                  onDrop={handleDrop}
-              >
+            <label
+              className={`preview${isActive ? " active" : ""}`}
+              onDragEnter={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragEnd}
+              onDrop={handleDrop}
+            >
               <input type="file" className="file" onChange={handleUpload} accept="image/*" />
               {imagePreview ? (
-              <div className="image_preview">
+                <div className="image_preview">
                   <img
-                  src={imagePreview}
-                  alt="Preview"
-                  style={{ maxWidth: "100%", maxHeight: "300px", objectFit: "contain" }}
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{ maxWidth: "100%", maxHeight: "300px", objectFit: "contain" }}
                   />
-              </div>
+                </div>
               ) : (
-              <>
+                <>
                   <Logo />
                   <p className="preview_msg">클릭 혹은 파일을 이곳에 드롭하세요.</p>
                   <p className="preview_desc">파일당 최대 20MB</p>
-              </>
+                </>
               )}
-              </label>
+            </label>
           </div>
           <div>
-              <button onClick={handleSubmit} className="upload_button">
-                  이미지 제출
-              </button>
+            <button onClick={handleSubmit} className="upload_button">
+              이미지 제출
+            </button>
           </div>
-        
+
           {responseMessage && <div id="responseMessage">{responseMessage}</div>}
         </div>
       )}
-      
+
     </div>
-    
+
   );
 };
 
