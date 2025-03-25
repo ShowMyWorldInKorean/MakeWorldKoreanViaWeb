@@ -1,6 +1,12 @@
-# MakeWorldKoreanViaWeb/frontend
-영-한 이미지 텍스트 번역을 웹으로 제공할 수 있도록 합니다.
+# React + Vite
 
-안보임스와 플로우가 유사할것을 생각되어 예시용으로 가지고 왔습니다. 
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-잘 수정하셔서 활용하시면 좋겠습니다,,,!!
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

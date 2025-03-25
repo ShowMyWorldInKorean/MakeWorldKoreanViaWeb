@@ -1,14 +1,15 @@
-import { BrowserRouter as Router } from "react-router-dom";
-import AppRoutes from "./Route"; // 분리된 라우트 파일 임포트
-import "./App.css";
-
+import { useState } from 'react'
+import './App.css'
+import AppRoutes from './router/aechaeRouter'
+import { BrowserRouter } from 'react-router-dom'
 
 function App() {
+
   return (
-    <Router>
+    <BrowserRouter>
       <AppRoutes />
-    </Router>
-  );
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
