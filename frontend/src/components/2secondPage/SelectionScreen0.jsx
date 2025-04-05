@@ -2,8 +2,8 @@ import React from "react";
 import LanguageSelector from "./LanguageSelector2";
 import DocumentArea from "./DocumentArea";
 import ActionButtons from "./ActionButtons";
-import Header from "../1initPage/Header";
 import { useLocation, useNavigate } from "react-router-dom";
+import Header from "../common/Header";
 
 function SelectionScreen() {
 
