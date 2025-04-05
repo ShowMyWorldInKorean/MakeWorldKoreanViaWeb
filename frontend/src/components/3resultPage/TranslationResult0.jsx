@@ -1,7 +1,7 @@
 import React from "react";
 import TranslationContent from "./TranslationContent";
 import NavigationButtons from "./NavigationButtons";
-import Header from "../1initPage/Header";
+import Header from "../common/Header";
 import LanguageSelector from "../2secondPage/LanguageSelector2";
 import { useLocation } from "react-router-dom";
 
