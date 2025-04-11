@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 
+
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,12 +30,12 @@ function Header() {
 
 
 
-
   return (
     <header className="flex flex-wrap gap-10 justify-between items-center pr-10 pl-10 w-full min-h-[100px] max-md:px-5 max-md:max-w-full">
       <div className="flex gap-8 items-center self-stretch pt-2.5 my-auto min-h-[100px] w-[125px]">
-        {/* <img onClick={handleGoHome} */}
+
         <img onClick={openModal}
+
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/e140f127d3b775b140526766ab0eb6d01d3c20814da123520a30eb8147661e49?placeholderIfAbsent=true&apiKey=a074662c9a4e43468db0c0711707807b"
           alt="Company Logo"
           className="object-contain self-stretch my-auto rounded-none aspect-[2.5] w-[125px]"
@@ -47,6 +48,7 @@ function Header() {
             </p>
           </div>
                  </Modal>
+
       </div>
       <div className="flex gap-6 items-center self-stretch my-auto text-xl text-center text-white min-w-60">
         <div className="flex self-stretch my-auto rounded-none min-w-80 w-[285px]">

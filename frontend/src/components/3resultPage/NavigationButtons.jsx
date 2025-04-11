@@ -35,6 +35,7 @@ function NavigationButtons({ outputType }) {
   }
 
 
+
   return (
     <div className="flex justify-center gap-10 mt-5 max-w-full text-xl font-semibold text-center text-blue-950 w-[620px]">
       <button onClick={handleHomeClick}
@@ -75,7 +76,7 @@ function NavigationButtons({ outputType }) {
       </Modal>
     
      
-    </div>
+   </div>
   );
 }
 

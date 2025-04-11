@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+
 import LanguageSelector from "./LanguageSelector2";
 import DocumentArea from "./DocumentArea";
 import ActionButtons from "./ActionButtons";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
+import Header from "../common/Header";
 
 function SelectionScreen() {
 
@@ -23,6 +25,7 @@ function SelectionScreen() {
   const modalClose = () => {
     setIsOpen(false);
   };
+
 
   const resultRaw = location.state
   const resultStr = JSON.stringify(resultRaw)
@@ -62,6 +65,7 @@ const btnSelectAll = ()=>{
       <h1 className="mt-10 text-4xl font-semibold text-center text-black max-md:max-w-full">
         번역을 원하는 부분을 모두 선택해주세요
       </h1>
+
       <section className="flex flex-col px-px py-7 mt-9 mb-3.5 w-full bg-white border-solid border-[0.7px] border-[color:var(--Neutral-color-Neutral-300,#D6D6D6)] max-w-[1282px] rounded-[30px] max-md:max-w-full">
         <LanguageSelector />
         <hr className="shrink-0 self-center mt-5 max-w-full h-px border border-solid border-neutral-200 w-[1200px]" />
@@ -80,6 +84,7 @@ const btnSelectAll = ()=>{
             </p>
           </div>
                  </Modal>
+
         </div>
       </section>
 

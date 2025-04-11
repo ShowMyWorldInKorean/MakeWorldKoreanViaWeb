@@ -20,6 +20,7 @@ const outputType = result.outputType
   return (
     <main className="flex overflow-hidden flex-col items-center pb-12 bg-stone-50">
           <h1 className="mt-10 text-4xl font-semibold text-center text-black max-md:max-w-full">
+
         {outputType=='1'?"텍스트로 번역했어요!":"이미지로 번역했어요!"}
       </h1>
 
@@ -30,8 +31,10 @@ const outputType = result.outputType
         <TranslationContent outputType={outputType}/>
       </section>
       <NavigationButtons outputType={outputType} />
+
     </main>
   );
 }
 
 export default TranslationResult;
+
