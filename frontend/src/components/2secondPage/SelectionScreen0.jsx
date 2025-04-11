@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
+
 import LanguageSelector from "./LanguageSelector2";
 import DocumentArea from "./DocumentArea";
 import ActionButtons from "./ActionButtons";
 import { useLocation, useNavigate } from "react-router-dom";
+import Modal from "../common/Modal";
 import Header from "../common/Header";
 
 function SelectionScreen() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const  [isOpen, setIsOpen] = useState(false);
+  const modalOpen = ()=>{
+    
+    setIsOpen(true)
+  }
+
+  const backToHome = () => {
+    setIsOpen(false);
+    navigate('/')
+  };
+
+  const modalClose = () => {
+    setIsOpen(false);
+  };
 
 
   const resultRaw = location.state
@@ -42,21 +58,10 @@ const btnSelectAll = ()=>{
   resultToPost.targetTextBlocks = blocksArr.map((block)=>block)
 }
 
-const btnChangeImg = ()=>{
-  const confirmMsg = window.confirm("첫 화면으로 나갈까요?")
-
-      //모달창으로 바꾸기
-      if (confirmMsg) {
-        navigate('/')
-      }
-      
-}
 
 
   return (
-    <main className="flex overflow-hidden flex-col items-center pb-10 bg-stone-50">
-      <Header />
-
+    <main className="flex overflow-hidden flex-col items-center pb-12 bg-stone-50">
       <h1 className="mt-10 text-4xl font-semibold text-center text-black max-md:max-w-full">
         번역을 원하는 부분을 모두 선택해주세요
       </h1>
@@ -69,8 +74,17 @@ const btnChangeImg = ()=>{
           <button onClick={btnSelectAll}
           className="self-stretch my-auto">전체 선택</button>
           <div className="shrink-0 self-stretch w-0 border border-solid border-neutral-200 h-[33px]" />
-          <button onClick={btnChangeImg}
+          <button onClick={modalOpen}
           className="self-stretch my-auto">이미지 변경</button>
+         <Modal isOpen={isOpen} modalClose={modalClose} onConfirm={backToHome}>
+          <div className="flex flex-col gap-2 items-center">
+            <h2 className="text-2xl font-semibold">이미지를 변경하시겠어요?</h2>
+            <p className="text-base text-center">
+              진행상황이 모두 사라지고 첫 화면으로 돌아갑니다.
+            </p>
+          </div>
+                 </Modal>
+
         </div>
       </section>
 

@@ -1,8 +1,9 @@
 import { Route, Routes } from "react-router-dom";
-import SelectionScreen from "../components/2secondPage/SelectionScreen0 editing";
+import SelectionScreen from "../components/2secondPage/SelectionScreen0";
+
 import InputDesign from "../components/1initPage/InputDesign";
 import TranslationResult from "../components/3resultPage/TranslationResult0";
-import Frame from "../components/common/frame";
+import Frame from "../components/common/Frame";
 
 
 const AppRoutes = () => {

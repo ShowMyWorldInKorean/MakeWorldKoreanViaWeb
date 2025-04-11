@@ -28,14 +28,15 @@ function ActionButtons({ resultToPost }) {
       <button onClick={handleClickToText}
         className="flex flex-1 gap-2.5 justify-center items-center  bg-white border border-[0.7px] border-[color:var(--Point-color-Point-400,#313E86)] min-h-[80px] rounded-[50px] max-md:px-3">
         <div className="h-[30px] w-[30px]">
-          <img src="/edit-2.png" />
+          <img src="/editIcon.png" />
         </div>
         <span>텍스트로 번역</span>
       </button>
       <button onClick={handleClickToImg}
         className="flex flex-1 gap-2.5 justify-center items-center  bg-white border border-[0.7px] border-[color:var(--Point-color-Point-400,#00106A)] min-h-[80px] rounded-[50px] max-md:px-3">
         <div className="h-[30px] w-[30px]">
-          <img src="/gallery.png" />
+          <img src="/galleryIcon.png" />
+
         </div>
         <span color="00106A">이미지로 번역</span>
       </button>

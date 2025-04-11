@@ -1,40 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Modal from "./Modal";
+
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
+  const openModal = () => {
 
-  const handleGoHome = () => {
-
-    console.log(location.pathname);
 
     if (location.pathname == '/') {
-      //새로고침으로 바꾸기
-      navigate('/')
-
+      window.location.reload();
     } else {
-
-      const confirmMsg = window.confirm("첫 화면으로 나갈까요?")
-
-      //모달창으로 바꾸기
-      if (confirmMsg) {
-        navigate('/')
-      }
+      setIsOpen(true);
     }
 
+
   }
+  const modalClose = () => {
+    setIsOpen(false);
+  }
+  const backToHome = () => {
+    setIsOpen(false);
+    navigate('/')
+  };
+
+
 
 
   return (
     <header className="flex flex-wrap gap-10 justify-between items-center pr-10 pl-10 w-full min-h-[100px] max-md:px-5 max-md:max-w-full">
       <div className="flex gap-8 items-center self-stretch pt-2.5 my-auto min-h-[100px] w-[125px]">
-        <img onClick={handleGoHome}
+
+        <img onClick={openModal}
+
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/e140f127d3b775b140526766ab0eb6d01d3c20814da123520a30eb8147661e49?placeholderIfAbsent=true&apiKey=a074662c9a4e43468db0c0711707807b"
           alt="Company Logo"
           className="object-contain self-stretch my-auto rounded-none aspect-[2.5] w-[125px]"
         />
+        <Modal isOpen={isOpen} modalClose={modalClose} onConfirm={backToHome}>
+          <div className="flex flex-col gap-2 items-center">
+            <h2 className="text-2xl font-semibold">첫 화면으로 나갈까요?</h2>
+            <p className="text-base text-center">
+              진행상황이 모두 사라지고 첫 화면으로 돌아갑니다.
+            </p>
+          </div>
+                 </Modal>
+
       </div>
       <div className="flex gap-6 items-center self-stretch my-auto text-xl text-center text-white min-w-60">
         <div className="flex self-stretch my-auto rounded-none min-w-80 w-[285px]">
