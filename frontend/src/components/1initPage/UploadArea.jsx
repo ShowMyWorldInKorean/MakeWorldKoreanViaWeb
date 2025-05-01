@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import Modal from "./src/components/common/Modal";
 
 function UploadArea() {
   const [responseMessage, setResponseMessage] = useState("");
@@ -57,6 +58,19 @@ function UploadArea() {
       <b>번역할 사진(JPG, PNG 등)</b>을 올려주세요.
     </span>
     <span className="mt-2 text-sm text-gray-500">최대 용량: 00MB</span>
+  
+   <Modal
+      isOpen={isLoading}
+      modalClose={() => setIsLoading(false)}  // 다시 확인 버튼 누르면 닫기 (필요 없으면 무시)
+      onConfirm={() => setIsLoading(false)}   // 나가기 버튼 누르면 닫기 (필요 없으면 무시)
+    >
+      {/* children 영역: 모달 안에 들어갈 내용 */}
+      <div className="flex flex-col items-center">
+        <img src="/public/AppIcon.png" width="50px" height="50px" className="mb-4" alt="로딩 중" />
+        <div className="text-2xl font-bold">사진을 열심히 읽고 있어요!</div>
+      </div>
+    </Modal>
+
   </div>
   );
 }
