@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import Modal from "./src/components/common/Modal";
+// import Modal from "./src/components/common/Modal";
+import Modal from "../common/Modal";
 
 function UploadArea() {
   const [responseMessage, setResponseMessage] = useState("");
