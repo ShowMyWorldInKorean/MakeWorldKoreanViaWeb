@@ -9,14 +9,35 @@ function LoadingModal({ show }) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{
-        background: "rgba(0, 0, 0, 0.3)", // 일반적인 불투명한 검정 배경
+        background: "rgba(0, 0, 0, 0.3)",
         backdropFilter: "blur(2px)",
       }}
     >
-      <div className="flex flex-col items-center justify-center bg-white rounded-2xl p-8 shadow-lg">
-        <img src="/AppIcon.png" alt="로딩 중" width="80" height="80" className="mb-4 animate-bounce" />
-        <span className="text-lg font-semibold text-gray-700">번역 중입니다...</span>
+      {/* AppIcon.png가 위, 그 아래에 '번역 중입니다...'가 나오도록 수정 */}
+      <div className="flex flex-col items-center">
+        <img
+          src="/AppIcon.png"
+          alt="로딩 중"
+          width="80"
+          height="80"
+          style={{
+            animation: "bounce 1s infinite"
+          }}
+        />
+        <span className="text-lg font-semibold text-gray-700 mt-4">번역 중입니다...</span>
       </div>
+      <style>
+        {`
+          @keyframes bounce {
+            0%, 100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-20px);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 }
