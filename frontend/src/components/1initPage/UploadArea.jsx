@@ -136,7 +136,12 @@ function UploadArea() {
 
           setLoading(false);
           setResponseMessage(`Upload successful: ${result.message}`)
-          navigate("/selectBox", { state: result })
+          navigate("/selectBox", { 
+            state: {
+              ...result, 
+              base64Image: reader.result, 
+            }
+            })
 
 
         }
