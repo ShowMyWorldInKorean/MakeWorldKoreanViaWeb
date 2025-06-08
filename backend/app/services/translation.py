@@ -1,9 +1,15 @@
+import os
 import base64
+import logging
 from io import BytesIO
 from PIL import Image
 from database.mongodb import db
+from dotenv import load_dotenv
+from services import exclude_key_words, detect_para
 
-import logging
+load_dotenv()
+SAVE_PATH = os.getenv('SAVE_PATH')
+
 logger = logging.getLogger(__name__)
 
 async def translate_text(user_id: str, image_id: str, target_blocks: list, 
@@ -18,11 +24,18 @@ async def translate_text(user_id: str, image_id: str, target_blocks: list,
     if not target_blocks:
         raise ValueError("❌ No text to translate")
     
-    # 원본 BASE64 이미지 디코딩
+    # 원본 BASE64 이미지 디코딩 (srnet에서 사용할 듯)
     image_data = base64.b64decode(detection["originalImage"])
     image = Image.open(BytesIO(image_data))
     
+    bbox_file_path = os.path.join(SAVE_PATH, "ocr_results", f"{image_id}_bbox.json")
+    
+    if not os.path.exists(bbox_file_path):
+            raise ValueError(f"❌ OCR result not found: {bbox_file_path}")
+    
     # 번역 서비스 호출
+    exclude_key_words(bbox_file_path) # 저장된 파일 대신 mongodb에 저장된 detection[detectedTextBlocks] 활용 가능
+    detect_para()
 
     # 예시 번역 결과 (실제로는 번역 모델 호출 결과를 사용)
     translation_result = { 
