@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { useDropzone } from "react-dropzone";
 
 // 간단한 모달 컴포넌트 정의
 function LoadingModal({ show }) {
@@ -43,53 +44,127 @@ function LoadingModal({ show }) {
 }
 
 function UploadArea() {
-  const [responseMessage, setResponseMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [responseMessage, setResponseMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const fileInputRef = useRef(null)
 
+
+
+  //dropzone
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: "image/*",
+    onDrop: (acceptedFiles) => handleFileSelect(acceptedFiles), //파일 선택시 실행
+  })
+
+  const handleFileSelect = (acceptedFiles) => {
+    const file = acceptedFiles[0]
+    if (file) {
+
+      handleFileProcessing(file); //파일타입검사, 로딩-2초 코드 묶음음
+
+
+    }
+  }
+
+
+
+  //클릭해서 파일 여는 함수
   const handleClick = () => {
-    setLoading(true); // 모달 표시
 
-    // 실제 번역 처리 시간 시뮬레이션 (예: 2초)
-    setTimeout(() => {
-      const userId = uuidv4();
-      const originalImage = "sample";
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
 
-      const result = {
-        success: true,
-        message: "텍스트 감지 완료",
-        data: {
-          userId: userId,
-          imageId: "img123...",
-          detectedTextBlocks: {
-            "1": {
-              bbox: [[10, 20], [100, 20], [100, 50], [10, 50]],
-              detectedText: "감지된 원본 텍스트1",
-            },
-            "2": {
-              bbox: [[150, 30], [300, 30], [300, 80], [150, 80]],
-              detectedText: "감지된 원본 텍스트2",
-            },
-            "3": {
-              bbox: [[150, 32], [300, 40], [140, 80], [299, 80]],
-              detectedText: "감지된 원본 텍스트3",
-            },
-          },
-        },
-      };
+    }
+  }
 
-      setLoading(false); // 모달 숨김
-      navigate("/selectBox", { state: result });
-      setResponseMessage(`Upload successful: ${result.message}`);
-      console.log(result.message);
-    }, 2000); // 2초 후에 번역 완료
-  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFileProcessing(file)
+    }
+  }
+
+
+
+  const handleFileProcessing = async (file) => {
+    console.log("선택된 파일", file)
+
+    if (!file || !file.type.startsWith("image/")) {
+      alert("이미지 파일만 선택 가능합니다.")
+      return;
+    }
+    setLoading(true);
+
+
+
+
+    try {
+      //2초 로딩시간 유지
+      setTimeout(() => {
+
+
+        const reader = new FileReader()
+
+        reader.onloadend = async () => {
+          const base64Image = reader.result.split(",")[1]
+
+          const payload = {
+            userid: uuidv4(),
+            originalImage: base64Image
+          }
+
+
+
+          const response = await fetch("http://localhost:8000/api/v1/text-detection", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+
+          })
+
+          if (!response.ok) {
+            throw new error("서버 응답에 실패하였습니다.")
+          }
+
+          const result = await response.json()
+          console.log("API응답 : ", result)
+
+
+          setLoading(false);
+          setResponseMessage(`Upload successful: ${result.message}`)
+          navigate("/selectBox", { 
+            state: {
+              ...result, 
+              base64Image: reader.result, 
+            }
+            })
+
+
+        }
+
+        reader.readAsDataURL(file) //base64로 읽기
+      }, 2000);
+    } catch (error) {
+      console.error("에러 발생 : ", error)
+      setLoading(false)
+      alert("파일 업로드에 실패했어요")
+    }
+
+
+  }
+
+
 
   return (
     <>
       <LoadingModal show={loading} />
       <div
         className="flex flex-col items-center justify-center py-42 w-full bg-white rounded-lg cursor-pointer hover:bg-gray-100 transition-all duration-200"
+        {...getRootProps()} //드래그앤드랍랍
         onClick={handleClick}
       >
         <img src="/FileUploadIcon.png" width="50px" height="50px" className="mb-3" alt="파일 업로드 아이콘" />
@@ -100,6 +175,17 @@ function UploadArea() {
           <b>번역할 사진(JPG, PNG 등)</b>을 올려주세요.
         </span>
         <span className="mt-2 text-sm text-gray-500">최대 용량: 00MB</span>
+
+
+        <input
+          {...getInputProps()}//드래그앤드랍
+          ref={fileInputRef}
+          type="file"
+          accept="image/*" // 이미지 파일만 선택 가능
+          style={{ display: "none" }} // 화면에 보이지 않도록 숨김
+          onChange={handleFileChange}
+        />
+
       </div>
     </>
   );
