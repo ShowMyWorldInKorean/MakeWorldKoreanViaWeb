@@ -1,6 +1,14 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    g++ \
+    build-essential \
+    python3-dev \
+    libpango1.0-dev \
+    libcairo2-dev \
+    imagemagick \
     libgl1-mesa-glx \
     libglib2.0-0 \
     libsm6 \
@@ -19,4 +27,12 @@ RUN uv sync --frozen --no-cache
 
 ENV PATH="/opt/.venv/bin:$PATH"
 
-# COPY korean_rec /opt/.venv/lib/python3.9/site-packages/paddleocr/inference/korean_rec
+RUN python -c "import nltk; nltk.download('punkt')"
+
+RUN git clone https://github.com/VarunGumma/IndicTransToolkit /tmp/IndicTransToolkit && \
+    cd /tmp/IndicTransToolkit && \
+    uv pip install ./ && \
+    rm -rf /tmp/IndicTransToolkit
+
+#IndicTransToolkit은 numpy 버전이 높아서 낮춰야 함
+RUN uv pip install numpy==1.24.4

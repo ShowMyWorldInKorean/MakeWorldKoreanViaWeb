@@ -8,9 +8,21 @@ import os
 import re
 import json
 import numpy as np
+import pandas as pd
+import torch
+import logging
+from tqdm import tqdm
+from transformers import (
+    AutoModelForSeq2SeqLM,
+    AutoTokenizer,
+    MarianMTModel,
+    MarianTokenizer,
+    M2M100ForConditionalGeneration,
+    M2M100Tokenizer,
+)
+from scipy.interpolate import CubicSpline, interp1d
 from dotenv import load_dotenv
 
-import logging
 logger = logging.getLogger(__name__)
 
 load_dotenv()
@@ -211,3 +223,153 @@ def detect_para():
 
     with open(f"{SAVE_PATH}/para_info.json", "w") as f: # pre_translation/{image_id}_para_info.json
         json.dump(patch_info, f, indent=4)
+
+def translate_de(eng_to_kor: str):
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--eng_to_kor",action="store_true") #수정
+    # args = parser.parse_args()
+    # mode = args.eng_to_kor # 영->한
+    mode = False
+    if eng_to_kor == "eng_to_kor":
+        mode = True
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    # mode=True
+    if mode: #영한
+        model_name = "NHNDQ/nllb-finetuned-en2ko"
+        logger.error("tokenizer loading...")
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        logger.error("tokenizer loaded")
+        logger.error("model loading...")
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name, trust_remote_code=True)
+        logger.error("model loaded")
+
+    else: #한영
+        model_name = "Helsinki-NLP/opus-mt-ko-en"
+        tokenizer = MarianTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        model = MarianMTModel.from_pretrained(model_name, trust_remote_code=True)
+
+    # ip = IndicProcessor(inference=True)
+    model = model.to(DEVICE)
+    model.eval()
+    # Set the source and target languages
+    if mode:
+        src_lang, tgt_lang = "eng_Latn", "kor_Hang"
+    else:
+        src_lang, tgt_lang = "kor_Hang", "eng_Latn"
+
+    img2info = json.load(open(f"{SAVE_PATH}/para_info.json")) # pre_translation/{image_id}_para_info.json
+    cnt=0
+    # Translate each para in the list
+    for img_id in tqdm(img2info.keys()):
+        img_info = img2info[img_id]
+        
+        for i in range(len(img_info['para'])):
+            word = img_info['para'][i]['txt']
+            
+            # # Set the source language
+            # tokenizer.src_lang = src_lang
+
+            # batch = ip.preprocess_batch(
+            #     [word],
+            #     src_lang=src_lang,
+            #     tgt_lang=tgt_lang,
+            # )
+            
+            # # Tokenize and encode the source text
+            # inputs = tokenizer(
+            #     batch,
+            #     truncation=True,
+            #     padding="longest",
+            #     return_tensors="pt",
+            #     return_attention_mask=True,
+            # ).to(DEVICE)
+            
+            # # Generate translations
+            # with torch.no_grad():
+            #     generated_tokens = model.generate(
+            #         **inputs,
+            #         use_cache=True,
+            #         min_length=0,
+            #         max_length=256,
+            #         num_beams=5,
+            #         num_return_sequences=1,
+            #     )
+
+            # # Decode the generated tokens into text
+            # with tokenizer.as_target_tokenizer():
+            #     generated_tokens = tokenizer.batch_decode(
+            #         generated_tokens.detach().cpu().tolist(),
+            #         skip_special_tokens=True,
+            #         clean_up_tokenization_spaces=True,
+            #     )
+            inputs = tokenizer(word, return_tensors="pt", padding=True, truncation=True)
+
+            translated = model.generate(**inputs.to(DEVICE))
+            translation = tokenizer.decode(translated[0], skip_special_tokens=True)
+            
+            # Postprocess the translations, including entity replacement
+            # translation = ip.postprocess_batch(generated_tokens, lang=tgt_lang)[0]
+            img2info[img_id]['para'][i]['trans_txt'] = translation
+            if(len(translation)==0):cnt+=1
+    json.dump(img2info,open(f"{SAVE_PATH}/para_info.json",'w'),indent=4) # pre_translation/{image_id}_para_info.json
+
+def from_word_crops():
+    data = json.load(open(f"{SAVE_PATH}/para_info.json", "r"))
+
+    i_s = {}
+
+    img_ids = data.keys()
+    for img_id in img_ids:
+        k = 0
+        for p in range(len(data[img_id]["para"])): # 이미지에서 패러그래프의 모든 단어 리스트
+            para_info = data[img_id]["para"][p]
+            para_words = para_info['trans_txt'].split() 
+            para_l = [len(t) for t in para_words]
+            para_l = np.cumsum(para_l)/np.sum(para_l)
+            trans_words_list = []
+            p_l_ = para_info['l']
+            p_l_ = np.cumsum(p_l_)/np.sum(p_l_) # 각 줄에 대한 누적 비율 계산
+            loop_trans_words = []
+            j = 0
+            i = 0
+            while i < len(para_words): #누적 비율 기준으로 단어들 그룹화(줄 생성)
+                if para_l[i] > p_l_[j]:
+                    trans_words_list.append(loop_trans_words)
+                    loop_trans_words = []
+                    j += 1
+                else:
+                    loop_trans_words.append(para_words[i])
+                    i += 1
+            trans_words_list.append(loop_trans_words)
+            for l in range(len(para_info["lines"])):
+                line_info = para_info["lines"][l]
+                l_ = line_info['l']
+                l_ = np.cumsum(l_)/np.sum(l_)
+                l_ = np.hstack([0, l_])
+                xcs = CubicSpline(l_, line_info['x'])
+                y1cs = CubicSpline(l_, line_info['y1'])
+                y2cs = CubicSpline(l_, line_info['y2'])          
+                trans_words = trans_words_list[l]
+                trans_l_ = [len(t) for t in trans_words]
+                trans_l = np.cumsum(trans_l_)/np.sum(trans_l_)
+                trans_l = np.hstack([0, trans_l])
+                new_x = xcs(trans_l)
+                new_y1 = y1cs(trans_l)
+                new_y2 = y2cs(trans_l)
+                ref_list = line_info['word_crops']
+                ref_list = list(pd.cut(trans_l[1:], l_, labels=ref_list))
+                ref_l = list(pd.cut(trans_l[1:], l_, labels=para_info["lines"][l]["l"],ordered=False))
+                for i in range(len(trans_words)):
+                    i_s[f"{img_id}_{k}"] = {
+                        "ref_i_s": ref_list[i],
+                        "bbox": [
+                            int(new_x[i]),
+                            int(new_y1[i]),
+                            int(new_x[i+1]),
+                            int(new_y2[i+1]),
+                        ],
+                        "trans_txt": trans_words[i],
+                        "ratio": ref_l[i]/trans_l_[i],
+                    }
+                    k += 1
+    json.dump(i_s, open(f"{SAVE_PATH}/para_info.json", "w"), indent=4)
