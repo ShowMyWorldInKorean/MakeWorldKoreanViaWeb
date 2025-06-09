@@ -1,5 +1,5 @@
 services:
-  mongodb:
+  mwkvw_mongodb:
     image: mongo:latest
     container_name: mwkvw_mongodb
     ports:
@@ -10,13 +10,13 @@ services:
     networks:
       - mwkvw-network
 
-  backend:
+  mwkvw_backend:
     container_name: mwkvw_backend
     build: .
     ports:
       - "8000:8000"
     depends_on:
-      - mongodb
+      - mwkvw_mongodb
     env_file:
       - .env
     volumes:
@@ -24,7 +24,7 @@ services:
     restart: always
     networks:
       - mwkvw-network
-    command: python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
   mongodb_data:

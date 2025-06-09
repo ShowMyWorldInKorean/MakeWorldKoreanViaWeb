@@ -1,9 +1,16 @@
+import os
 import base64
+import json
+import logging
 from io import BytesIO
 from PIL import Image
 from database.mongodb import db
+from dotenv import load_dotenv
+from services import exclude_key_words, detect_para, translate_de, from_word_crops
 
-import logging
+load_dotenv()
+SAVE_PATH = os.getenv('SAVE_PATH')
+
 logger = logging.getLogger(__name__)
 
 async def translate_text(user_id: str, image_id: str, target_blocks: list, 
@@ -18,21 +25,33 @@ async def translate_text(user_id: str, image_id: str, target_blocks: list,
     if not target_blocks:
         raise ValueError("❌ No text to translate")
     
-    # 원본 BASE64 이미지 디코딩
+    # 원본 BASE64 이미지 디코딩 (srnet에서 사용할 듯)
     image_data = base64.b64decode(detection["originalImage"])
     image = Image.open(BytesIO(image_data))
     
+    bbox_file_path = os.path.join(SAVE_PATH, "ocr_results", f"{image_id}_bbox.json")
+    
+    if not os.path.exists(bbox_file_path):
+            raise ValueError(f"❌ OCR result not found: {bbox_file_path}")
+    
     # 번역 서비스 호출
+    exclude_key_words(bbox_file_path) # 저장된 파일 대신 mongodb에 저장된 detection[detectedTextBlocks] 활용 가능
+    detect_para()
+    translate_de("eng_to_kor")
+    from_word_crops()
 
     # 예시 번역 결과 (실제로는 번역 모델 호출 결과를 사용)
-    translation_result = { 
-        "100_0": { "ref_i_s": "100_4", "bbox": [ 154, 122, 508, 180 ], "trans_txt": "\u0915\u094b\u0932\u091a\u0947\u0938\u094d\u091f\u0930", "ratio": 0.2222222222222222 }, 
-        "100_1": { "ref_i_s": "100_1", "bbox": [ 67, 193, 123, 249 ], "trans_txt": "\u0914\u0930", "ratio": 5.0 }, 
-        "100_2": { "ref_i_s": "100_2", "bbox": [ 123, 193, 492, 252 ], "trans_txt": "\u0917\u094d\u0930\u0940\u0928\u0938\u094d\u091f\u0947\u0921", "ratio": 0.3 }, 
-        "100_3": { "ref_i_s": "100_0", "bbox": [ 71, 254, 127, 327 ], "trans_txt": "\u0915\u0947", "ratio": 5.0 }, 
-        "100_4": { "ref_i_s": "100_0", "bbox": [ 127, 254, 212, 327 ], "trans_txt": "\u0932\u093f\u090f", "ratio": 3.3333333333333335 }, 
-        "100_5": { "ref_i_s": "100_0", "bbox": [ 212, 254, 382, 327 ], "trans_txt": "\u092b\u0941\u091f\u092a\u093e\u0925", "ratio": 1.6666666666666667 }
-    }
+    # translation_result = { 
+    #     "100_0": { "ref_i_s": "100_4", "bbox": [ 154, 122, 508, 180 ], "trans_txt": "\u0915\u094b\u0932\u091a\u0947\u0938\u094d\u091f\u0930", "ratio": 0.2222222222222222 }, 
+    #     "100_1": { "ref_i_s": "100_1", "bbox": [ 67, 193, 123, 249 ], "trans_txt": "\u0914\u0930", "ratio": 5.0 }, 
+    #     "100_2": { "ref_i_s": "100_2", "bbox": [ 123, 193, 492, 252 ], "trans_txt": "\u0917\u094d\u0930\u0940\u0928\u0938\u094d\u091f\u0947\u0921", "ratio": 0.3 }, 
+    #     "100_3": { "ref_i_s": "100_0", "bbox": [ 71, 254, 127, 327 ], "trans_txt": "\u0915\u0947", "ratio": 5.0 }, 
+    #     "100_4": { "ref_i_s": "100_0", "bbox": [ 127, 254, 212, 327 ], "trans_txt": "\u0932\u093f\u090f", "ratio": 3.3333333333333335 }, 
+    #     "100_5": { "ref_i_s": "100_0", "bbox": [ 212, 254, 382, 327 ], "trans_txt": "\u092b\u0941\u091f\u092a\u093e\u0925", "ratio": 1.6666666666666667 }
+    # }
+
+    with open(f"{SAVE_PATH}/para_info.json", 'r') as f:
+        translation_result = json.load(f)
     
     # 번역 결과를 API 응답 형식으로 변환
     translations = {}
