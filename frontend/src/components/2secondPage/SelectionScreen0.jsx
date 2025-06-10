@@ -28,14 +28,14 @@ function SelectionScreen() {
 
 const result = location.state;
 const base64Image = result.base64Image;
-  // const resultRaw = location.state
-  // const resultStr = JSON.stringify(resultRaw)
-  // const result = JSON.parse(resultStr)
+const resultRaw = location.state
+const resultStr = JSON.stringify(resultRaw)
+  // const resultJSON = JSON.parse(resultStr)
 
 
   console.log("넘어 온 데이터 :", result);
   console.log("넘어 온 데이터 :", result.data.detectedTextBlocks); //object
- 
+  console.log("넘어 온 데이터 :", resultJSON);
 
   const resultToPost = {
     "userId": result.data.userId,
