@@ -26,16 +26,20 @@ function SelectionScreen() {
     setIsOpen(false);
   };
 
-const result = location.state;
-const base64Image = result.base64Image;
-  // const resultRaw = location.state
-  // const resultStr = JSON.stringify(resultRaw)
-  // const result = JSON.parse(resultStr)
-
+  const result = {
+    data: location.state.data,
+    message: location.state.message,
+    success: location.state.success
+  };
+  
+  const base64Image = location.state.base64Image;
+  
+  console.log(result.data.detectedTextBlocks);
+  
 
   console.log("넘어 온 데이터 :", result);
   console.log("넘어 온 데이터 :", result.data.detectedTextBlocks); //object
- 
+  // console.log("넘어 온 데이터 :", resultJSON);
 
   const resultToPost = {
     "userId": result.data.userId,
@@ -50,7 +54,7 @@ const base64Image = result.base64Image;
 
   //Object인 TextBlocks를 배열로 변환. Object.values() 이용
   const blocksObject = result.data.detectedTextBlocks
-  const blocksArr = Object.values(blocksObject)
+  const blocksArr = Object.values(result.data.detectedTextBlocks);
 
 console.log("변환 전:",blocksObject);
 console.log("변환 후:",blocksArr);
@@ -70,7 +74,9 @@ const btnSelectAll = ()=>{
       <section className="flex flex-col py-7 mt-9 mb-3.5 w-full bg-white border-solid border-[0.7px] border-[color:var(--Neutral-color-Neutral-300,#D6D6D6)] max-w-[1282px] rounded-[30px] max-md:max-w-full">
         <LanguageSelector />
         <hr className="shrink-0 self-center mt-5 max-w-full h-px border border-solid border-neutral-200 w-[1200px]" />
-        <DocumentArea base64Image={base64Image}/>
+        
+        <DocumentArea base64Image={base64Image} blocks={blocksArr} />
+
         <div className="flex flex-wrap gap-8 items-center px-10 mt-7 text-2xl font-medium text-right text-stone-500 max-md:px-5">
           <button onClick={btnSelectAll}
           className="self-stretch my-auto">전체 선택</button>
