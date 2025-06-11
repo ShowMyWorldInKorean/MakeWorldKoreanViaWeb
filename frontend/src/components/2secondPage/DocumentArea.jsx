@@ -1,62 +1,72 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react";
 
-function DocumentArea({ base64Image }) {
-  const [selectedItems, setSelectedItems] = useState([]);
+function DocumentArea({ base64Image, blocks }) {
+  const [originalSize, setOriginalSize] = useState(null);
+  const renderedWidth = 800;
+  const renderedHeight = 600;
 
-  const toggleSelection = (id) => {
-    if (selectedItems.includes(id)) {
-      setSelectedItems(selectedItems.filter((item) => item !== id));
-    } else {
-      setSelectedItems([...selectedItems, id]);
-    }
+  useEffect(() => {
+    if (!base64Image) return;
+
+    const img = new Image();
+    img.onload = () => {
+      setOriginalSize({
+        width: img.width,
+        height: img.height
+      });
+    };
+    img.src = base64Image;
+  }, [base64Image]);
+
+  if (!originalSize) {
+    return <div className="text-white">이미지 로딩 중...</div>;
   }
 
-  console.log("base64Image 전달됨?", base64Image);
-
+  const scaleX = renderedWidth / originalSize.width;
+  const scaleY = renderedHeight / originalSize.height;
 
   return (
-    <div className="flex flex-col items-center self-center w-full bg-zinc-800 max-w-[1140px]  max-md:max-w-full"
-      style={{
-        width: "880px",  // 너비 고정
-        height: "600px", // 높이 고정정
-        overflow: "hidden",
-      }}>
+    <div className="flex justify-center items-center">
+      <div
+        className="relative"
+        style={{ width: `${renderedWidth}px`, height: `${renderedHeight}px` }}
+      >
+        <img
+          src={base64Image}
+          alt="업로드 이미지"
+          style={{ width: `${renderedWidth}px`, height: `${renderedHeight}px` }}
+        />
 
+        {blocks.map((block, index) => {
+          const bbox = block.bbox;
+          if (!bbox || bbox.length !== 4) return null;
 
-      <div className="w-full flex justify-center">
-        <div className="relative" >
-          <img
-            src={base64Image}
-            alt="업로드 이미지"
-            className="max-w-full max-h-[600px]"
-          />
+          const [x1, y1] = bbox[0];
+          const [x2] = bbox[1];
+          const [, , , [x4, y4]] = bbox;
 
-          <button
-            onClick={() => toggleSelection("item1")}
-            className="absolute top-[50px] left-[100px] w-[120px] h-[40px] border border-gray-400 rounded-[7px] bg-white/20"
-          >
-            
-          </button>
-          <button
-            onClick={() => toggleSelection("item2")}
-            className="absolute top-[120px] left-[200px] w-[140px] h-[40px] border border-gray-400 rounded-[7px] bg-white/20"
-          >
-            
-          </button>
-          <button
-            onClick={() => toggleSelection("item3")}
-            className="absolute top-[200px] left-[150px] w-[160px] h-[40px] border border-gray-400 rounded-[7px] bg-white/20"
-          >
-            
-          </button>
-        </div>
+          const width = (x2 - x1) * scaleX;
+          const height = (y4 - y1) * scaleY;
+
+          const left = x1 * scaleX;
+          const top = y1 * scaleY;
+
+          return (
+            <div
+              key={index}
+              className="absolute border border-red-500 rounded-lg"
+              style={{
+                left: `${left}px`,
+                top: `${top}px`,
+                width: `${width}px`,
+                height: `${height}px`,
+                zIndex: 10,
+                border: '2px solid #00106A'
+              }}
+            />
+          );
+        })}
       </div>
-
-
-
-
-
-
     </div>
   );
 }
