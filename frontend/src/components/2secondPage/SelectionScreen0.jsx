@@ -26,16 +26,20 @@ function SelectionScreen() {
     setIsOpen(false);
   };
 
-const result = location.state;
-const base64Image = result.base64Image;
-const resultRaw = location.state
-const resultStr = JSON.stringify(resultRaw)
-  // const resultJSON = JSON.parse(resultStr)
-
+  const result = {
+    data: location.state.data,
+    message: location.state.message,
+    success: location.state.success
+  };
+  
+  const base64Image = location.state.base64Image;
+  
+  console.log(result.data.detectedTextBlocks);
+  
 
   console.log("넘어 온 데이터 :", result);
   console.log("넘어 온 데이터 :", result.data.detectedTextBlocks); //object
-  console.log("넘어 온 데이터 :", resultJSON);
+  // console.log("넘어 온 데이터 :", resultJSON);
 
   const resultToPost = {
     "userId": result.data.userId,
