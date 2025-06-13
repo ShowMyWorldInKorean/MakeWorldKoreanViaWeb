@@ -17,10 +17,10 @@ function LoadingModal({ show }) {
       {/* AppIcon.png가 위, 그 아래에 '번역 중입니다...'가 나오도록 수정 */}
       <div className="flex flex-col items-center">
         <img
-          src="/AppIcon.png"
+          src="icon_only.png"
           alt="로딩 중"
-          width="80"
-          height="80"
+          width="400"
+          height="400"
           style={{
             animation: "bounce 1s infinite"
           }}
