@@ -63,6 +63,13 @@ const btnSelectAll = ()=>{
   resultToPost.targetTextBlocks = blocksArr.map((block)=>block)
 }
 
+const [selectedBlocks, setSelectedBlocks] = useState({});
+const toggleBlock = (idx) => {
+  setSelectedBlocks((prev) => ({
+    ...prev,
+    [idx]: !prev[idx]
+  }));
+};
 
 
   return (
@@ -75,7 +82,13 @@ const btnSelectAll = ()=>{
         <LanguageSelector />
         <hr className="shrink-0 self-center mt-5 max-w-full h-px border border-solid border-neutral-200 w-[1200px]" />
         
-        <DocumentArea base64Image={base64Image} blocks={blocksArr} />
+        <DocumentArea
+            base64Image={base64Image}
+            blocks={blocksArr}
+            selectedBlocks={selectedBlocks}
+            toggleBlock={toggleBlock}
+            />
+
 
         <div className="flex flex-wrap gap-8 items-center px-10 mt-7 text-2xl font-medium text-right text-stone-500 max-md:px-5">
           <button onClick={btnSelectAll}

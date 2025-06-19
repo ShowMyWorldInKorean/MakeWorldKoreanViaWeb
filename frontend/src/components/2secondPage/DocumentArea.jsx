@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function DocumentArea({ base64Image, blocks }) {
+function DocumentArea({ base64Image, blocks, selectedBlocks, toggleBlock }) {
   const [originalSize, setOriginalSize] = useState(null);
   const renderedWidth = 800;
   const renderedHeight = 600;
@@ -51,17 +51,23 @@ function DocumentArea({ base64Image, blocks }) {
           const left = x1 * scaleX;
           const top = y1 * scaleY;
 
+          const isSelected = selectedBlocks?.[index];
+
           return (
             <div
               key={index}
-              className="absolute border border-red-500 rounded-lg"
+              onClick={() => toggleBlock(index)} // 🔺 클릭 이벤트 추가
+              className="absolute rounded-lg"
               style={{
                 left: `${left}px`,
                 top: `${top}px`,
                 width: `${width}px`,
                 height: `${height}px`,
                 zIndex: 10,
-                border: '2px solid #00106A'
+                border: '2px solid',
+                borderColor: isSelected ? '#EE0000' : '#00106A',
+                backgroundColor: isSelected ? 'rgba(255, 0, 0, 0.2)' : 'transparent',
+                cursor: 'pointer',
               }}
             />
           );
