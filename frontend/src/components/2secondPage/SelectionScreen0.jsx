@@ -61,6 +61,11 @@ console.log("변환 후:",blocksArr);
 
 const btnSelectAll = ()=>{
   resultToPost.targetTextBlocks = blocksArr.map((block)=>block)
+    const allSelected = {};
+  blocksArr.forEach((_, idx) => {
+    allSelected[idx] = true;
+  });
+  setSelectedBlocks(allSelected);
 }
 
 const [selectedBlocks, setSelectedBlocks] = useState({});
@@ -70,7 +75,6 @@ const toggleBlock = (idx) => {
     [idx]: !prev[idx]
   }));
 };
-
 
   return (
     <main className="flex overflow-hidden flex-col items-center pb-12 bg-stone-50">
