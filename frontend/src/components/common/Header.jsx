@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "./Modal";
-
+import QRModal from "../common/QRModal";
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+
+  const handleQRClick = () => setShowQRModal(true);
+  const handleCloseQR = () => setShowQRModal(false);
 
   const openModal = () => {
 
@@ -67,9 +71,13 @@ function Header() {
         <img
           src="\AppIcon.png"
           alt="QR code"
+          onClick={handleQRClick}
           className="object-contain shrink-0 self-stretch my-auto aspect-[1/1] w-[60px]"
         />
       </div>
+      {showQRModal && (
+      <QRModal onClose={handleCloseQR} url={window.location.origin} />
+        )}
     </header>
   );
 }
