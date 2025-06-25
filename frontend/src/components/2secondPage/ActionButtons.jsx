@@ -5,6 +5,7 @@ function ActionButtons({ resultToPost }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  console.log("보낼 데이터:", resultToPost);
 
   const handleClickToText = () => {
     resultToPost.outputType = "1"
@@ -15,12 +16,42 @@ function ActionButtons({ resultToPost }) {
     // console.log(result.message);
   }
 
-  const handleClickToImg = () => {
-    resultToPost.outputType = "2"
-    console.log(resultToPost.outputType);
-    navigate('/result', { state: resultToPost })
+  const handleClickToImg = async () => {
+    resultToPost.outputType = "2";
+    console.log("보낼 데이터:", resultToPost);
+    const payload = { ...resultToPost, outputType: 2 };
+    console.log("📦 보낼 데이터:", payload);
 
-  }
+    await fetch("http://localhost:8000/api/v1/translate", {
+      method : "POST",
+      headers: { "Content-Type": "application/json" },
+      body   : JSON.stringify(payload),
+    });
+    
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/translate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(resultToPost),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`서버 오류: ${response.status}`);
+      }
+  
+      const responseData = await response.json();
+      console.log("응답 받은 데이터:", responseData);
+  
+      navigate("/result", { state: responseData });
+  
+    } catch (error) {
+      console.error("번역 요청 실패:", error);
+      alert("번역 요청에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+  
 
 
   return (

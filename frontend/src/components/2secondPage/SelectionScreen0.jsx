@@ -44,13 +44,13 @@ function SelectionScreen() {
   const resultToPost = {
     "userId": result.data.userId,
     "imageId": result.data.imageId, 
-    "targetTextBlocks": [result.data.detectedTextBlocks["1"], result.data.detectedTextBlocks["3"],],
+    "targetTextBlocks": ["1","3"],
     "sourceLanguage": "en",
     "targetLanguage": "ko",
     "outputType": "0"
   }
 
-  // console.log("resultToPost: ",resultToPost);
+  console.log("resultToPost: ",resultToPost);
 
   //Object인 TextBlocks를 배열로 변환. Object.values() 이용
   const blocksObject = result.data.detectedTextBlocks
