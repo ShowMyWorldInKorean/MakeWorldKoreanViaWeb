@@ -13,7 +13,7 @@ const resultStr = JSON.stringify(resultRaw)
 const result = JSON.parse(resultStr)
 
 console.log("outputType :", result.outputType); 
-console.log("마지막에 넘어 온 데이터 : ", result);
+console.log("마지막에 넘어 온 데이터 (result page): ", result);
 
 const outputType = result.outputType
 

@@ -112,7 +112,14 @@ const toggleBlock = (idx) => {
         </div>
       </section>
 
-      <ActionButtons resultToPost={resultToPost}/>
+      <ActionButtons
+  userId={result.data.userId}
+  imageId={result.data.imageId}
+  sourceLanguage="en"
+  targetLanguage="ko"
+  selectedBlocks={selectedBlocks}
+/>
+
     </main>
   );
 }
