@@ -118,6 +118,8 @@ const toggleBlock = (idx) => {
   sourceLanguage="en"
   targetLanguage="ko"
   selectedBlocks={selectedBlocks}
+  originalImage={base64Image}
+  detectedTextBlocks={result.data.detectedTextBlocks}
 />
 
     </main>

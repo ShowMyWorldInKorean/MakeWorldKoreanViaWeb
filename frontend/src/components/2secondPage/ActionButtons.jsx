@@ -1,15 +1,60 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// 간단한 모달 컴포넌트 정의
+function LoadingModal({ show }) {
+  if (!show) return null;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{
+        background: "rgba(0, 0, 0, 0.3)",
+        backdropFilter: "blur(2px)",
+      }}
+    >
+      {/* AppIcon.png가 위, 그 아래에 '번역 중입니다...'가 나오도록 수정 */}
+      <div className="flex flex-col items-center">
+        <img
+          src="icon_only.png"
+          alt="로딩 중"
+          width="400"
+          height="400"
+          style={{
+            animation: "bounce 1s infinite"
+          }}
+        />
+        <span className="text-lg font-semibold text-gray-700 mt-4">번역 중입니다...</span>
+      </div>
+      <style>
+        {`
+          @keyframes bounce {
+            0%, 100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-20px);
+            }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
+
 function ActionButtons({
   userId,
   imageId,
   sourceLanguage,
   targetLanguage,
   selectedBlocks,
+  originalImage,
+  detectedTextBlocks,
 }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
+  console.log("ActionButtons - 원본 이미지:", originalImage ? "있음" : "없음");
+  console.log("ActionButtons - 원본 이미지 길이:", originalImage ? originalImage.length : 0);
 
   // 선택된 블록 인덱스만 배열로 추출
   const selectedIndexes = Object.entries(selectedBlocks)
@@ -28,7 +73,12 @@ function ActionButtons({
   console.log("최종 전송 데이터:", resultToPost);
 
   const handleClickToText = () => {
-    const payload = { ...resultToPost, outputType: "1" };
+    const payload = { 
+      ...resultToPost, 
+      outputType: "1",
+      originalImage: originalImage,
+      detectedTextBlocks: detectedTextBlocks
+    };
     navigate("/result", { state: payload });
   };
 
@@ -50,7 +100,15 @@ function ActionButtons({
       }
 
       const responseData = await response.json();
-      navigate("/result", { state: responseData });
+      
+      // 원본 이미지와 감지된 텍스트 블록을 응답 데이터에 추가
+      const finalData = {
+        ...responseData,
+        originalImage: originalImage,
+        detectedTextBlocks: detectedTextBlocks
+      };
+      
+      navigate("/result", { state: finalData });
     } catch (error) {
       console.error("번역 요청 실패:", error);
       alert("번역 요청에 실패했습니다. 다시 시도해주세요.");
@@ -61,6 +119,7 @@ function ActionButtons({
 
   return (
     <>
+      <LoadingModal show={isLoading} />
       <div className="flex justify-center gap-10 mt-5 max-w-full text-xl font-semibold text-center text-blue-950 w-[620px]">
         <button
           onClick={handleClickToText}
@@ -82,17 +141,6 @@ function ActionButtons({
           <span>{isLoading ? "번역 중..." : "이미지로 번역"}</span>
         </button>
       </div>
-
-      {/* 로딩 모달 */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-lg font-semibold text-gray-700">이미지 번역 중...</p>
-            <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요</p>
-          </div>
-        </div>
-      )}
     </>
   );
 }
