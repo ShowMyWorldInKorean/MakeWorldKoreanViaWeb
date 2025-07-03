@@ -25,7 +25,7 @@ function LoadingModal({ show }) {
             animation: "bounce 1s infinite"
           }}
         />
-        <span className="text-lg font-semibold text-gray-700 mt-4">번역 중입니다...</span>
+        <span className="text-lg font-semibold text-gray-700 mt-4">글씨를 찾고 있어요...</span>
       </div>
       <style>
         {`
