@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mwkvw_mongodb:
     image: mongo:latest
@@ -14,10 +12,7 @@ services:
 
   mwkvw_backend:
     container_name: mwkvw_backend
-    build:
-      context: .
-      dockerfile: ${DOCKERFILE:-Dockerfile}
-    platform: ${PLATFORM:-linux/amd64}
+    build: .
     ports:
       - "8000:8000"
     depends_on:
@@ -29,7 +24,7 @@ services:
     restart: always
     networks:
       - mwkvw-network
-    command: ${CMD:-uvicorn main:app --host 0.0.0.0 --port 8000 --reload}
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
   mongodb_data:
