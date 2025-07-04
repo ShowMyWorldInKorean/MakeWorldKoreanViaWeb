@@ -10,17 +10,16 @@ function TranslationContent({outputType}) {
     <div className="flex flex-col items-center h-128.5 self-center w-full max-w-[1140px] max-md:px-5 max-md:max-w-full">
       <div className="mt-5 w-full max-w-[1160px] max-md:max-w-full">
         {/* Panel Container */}
-        <div className="flex w-full items-stretch gap-5 max-md:flex-col">
-          {/* 왼쪽 패널 */}
+        <div className="flex w-full items-stretch max-md:flex-col">
+          {/* 왼쪽 패널 - 원본 이미지 (고정) */}
           <div className="flex-1 flex flex-col h-full">
-            {outputType=='1'?<OriginalTextPanel activeTab={activeTab} setActiveTab={setActiveTab} />:<TranslatedImgPanel activeTab={activeTab} setActiveTab={setActiveTab}/>}
-            
+            <OriginalTextPanel />
           </div>
 
           {/* 세로 구분선 (중앙 정렬) */}
           <div className="w-[2px] bg-gray-300 self-stretch max-md:hidden"></div>
 
-          {/* 오른쪽 패널 - 번역 텍스트 패널*/}
+          {/* 오른쪽 패널 - 번역 텍스트 패널 (탭 기능) */}
           <div className="flex-1 flex flex-col h-full">
             <TranslatedTextPanel activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
