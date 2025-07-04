@@ -46,7 +46,7 @@ function TranslatedImgPanel({ activeTab, setActiveTab }) {
 
         <div className="mt-12 leading-9 text-black max-md:mt-10 max-md:max-w-full">
           {activeTab === "translation" && (
-            <div className="w-120">
+            <div className="w-120 flex justify-end">
               {translatedImage ? (
                 <div className="flex flex-col items-center">
                   <img 
@@ -72,7 +72,7 @@ function TranslatedImgPanel({ activeTab, setActiveTab }) {
           )}
 
           {activeTab === "original" && (
-            <div className="w-120">
+            <div className="w-120 flex justify-end">
               {originalImage ? (
                 <div className="flex flex-col items-center">
                   <img 
