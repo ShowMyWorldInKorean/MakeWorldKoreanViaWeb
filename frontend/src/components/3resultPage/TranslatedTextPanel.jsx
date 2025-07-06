@@ -1,13 +1,14 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-function TranslatedTextPanel({ activeTab, setActiveTab }) {
+function TranslatedTextPanel({ activeTab, setActiveTab, outputType }) {
   const location = useLocation();
   const result = location.state;
 
   // 번역 결과 추출 - 다양한 데이터 구조 지원
   const translations = result?.data?.translations || result?.translations || {};
   const originalTextBlocks = result?.data?.detectedTextBlocks || result?.detectedTextBlocks || {};
+  const finalOutputType = outputType || result?.outputType || "1";
 
   // 번역된 텍스트들을 배열로 변환
   const translatedTexts = Object.values(translations);
@@ -19,6 +20,7 @@ function TranslatedTextPanel({ activeTab, setActiveTab }) {
   console.log("🔍 TranslatedTextPanel - 원문 블록:", originalTextBlocks);
   console.log("🔍 TranslatedTextPanel - 번역된 텍스트들:", translatedTexts);
   console.log("🔍 TranslatedTextPanel - 원문 텍스트들:", originalTexts);
+  console.log("🔍 TranslatedTextPanel - outputType:", finalOutputType);
 
   return (
     <article className="ml-5 w-6/12 max-md:ml-0 max-md:w-full">
