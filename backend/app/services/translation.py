@@ -68,19 +68,74 @@ async def translate_text(user_id: str, image_id: str, target_blocks: list,
         "translations": translations
     }
     
-    # 출력 타입이 2인 경우, 번역된 텍스트로 새 이미지 생성
+    # 출력 타입이 2인 경우, SRNet API를 통해 번역된 텍스트로 새 이미지 생성
     if output_type == 2:
         try:
+            # SRNet API 호출을 위한 데이터 준비
+            import httpx
+            import asyncio
+            
             # 이미지를 Base64로 변환
             buffered = BytesIO()
-            image.save(buffered, format="JPEG") # image를 모델에서 생성한 번역 이미지로 변경
-            img_str = base64.b64encode(buffered.getvalue()).decode()
+            image.save(buffered, format="JPEG")
+            image_base64 = base64.b64encode(buffered.getvalue()).decode()
             
-            response_data["translatedImage"] = img_str
+            # i_s_info.json과 para_info.json 로드
+            i_s_info = {}
+            para_info = {}
+            
+            i_s_info_path = f"{SAVE_PATH}/i_s_info.json"
+            para_info_path = f"{SAVE_PATH}/para_info.json"
+            
+            if os.path.exists(i_s_info_path):
+                with open(i_s_info_path, 'r') as f:
+                    i_s_info = json.load(f)
+            
+            if os.path.exists(para_info_path):
+                with open(para_info_path, 'r') as f:
+                    para_info = json.load(f)
+            
+            # SRNet API 호출
+            async def call_srnet_api():
+                async with httpx.AsyncClient(timeout=1800.0) as client:
+                    response = await client.post(
+                        'http://mwkvw_srnet:8001/process',
+                        json={
+                            'image_id': image_id,
+                            'user_id': user_id,
+                            'image_base64': image_base64,
+                            'i_s_info': i_s_info,
+                            'para_info': para_info
+                        }
+                    )
+                    return response
+            
+            # 비동기 API 호출 실행
+            srnet_response = await call_srnet_api()
+            
+            if srnet_response.status_code == 200:
+                srnet_result = srnet_response.json()
+                if srnet_result.get('success'):
+                    # SRNet에서 처리된 이미지 사용
+                    translated_image_base64 = srnet_result['data']['image_base64']
+                    response_data["translatedImage"] = translated_image_base64
+                    logger.info(f"✅ SRNet Image Generation Success: {user_id}")
+                else:
+                    logger.error(f"❌ SRNet API Error: {srnet_result.get('message', 'Unknown error')}")
+                    # 원본 이미지 반환
+                    response_data["translatedImage"] = image_base64
+            else:
+                logger.error(f"❌ SRNet API Call Failed: {srnet_response.status_code}")
+                # 원본 이미지 반환
+                response_data["translatedImage"] = image_base64
             
         except Exception as e:
-            # 이미지 생성에 실패해도 번역 결과는 반환
-            logger.error(f"❌ Image Creation Error: {user_id}, {str(e)}")
+            # 이미지 생성에 실패해도 번역 결과는 반환 (원본 이미지 반환)
+            logger.error(f"❌ SRNet Image Creation Error: {user_id}, {str(e)}")
+            buffered = BytesIO()
+            image.save(buffered, format="JPEG")
+            img_str = base64.b64encode(buffered.getvalue()).decode()
+            response_data["translatedImage"] = img_str
     
     # 번역 결과 저장
     try:
