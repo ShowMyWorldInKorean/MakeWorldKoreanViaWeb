@@ -215,7 +215,9 @@ def generate_o_t():
     G = Generator(in_channels = 3).to(device)
 
     G.eval()
-    G.load_state_dict(torch.load(CHECKPOINT)['generator'])
+    checkpoint = torch.load(CHECKPOINT, map_location=torch.device(device))
+    G.load_state_dict(checkpoint['generator'])
+
 
     # size = (128, 64)
     def infer(i_s, i_t, size, model, path):

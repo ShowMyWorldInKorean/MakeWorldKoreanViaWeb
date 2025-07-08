@@ -59,7 +59,7 @@ function ActionButtons({
   // 선택된 블록 인덱스만 배열로 추출
   const selectedIndexes = Object.entries(selectedBlocks)
     .filter(([_, isSelected]) => isSelected)
-    .map(([idx]) => idx);  // 인덱스는 문자열로 되어 있음
+    .map(([idx]) => `${imageId}_${idx}`);  // 인덱스는 문자열로 되어 있음
 
   const resultToPost = {
     userId,
