@@ -13,7 +13,7 @@ function TranslationContent({outputType}) {
         <div className="flex w-full items-stretch gap-5 max-md:flex-col">
           {/* 왼쪽 패널 */}
           <div className="flex-1 flex flex-col h-full">
-            {outputType=='1'?<OriginalTextPanel activeTab={activeTab} setActiveTab={setActiveTab} />:<TranslatedImgPanel activeTab={activeTab} setActiveTab={setActiveTab}/>}
+            {outputType=='1'?<OriginalTextPanel activeTab={activeTab} setActiveTab={setActiveTab} outputType={outputType} />:<TranslatedImgPanel activeTab={activeTab} setActiveTab={setActiveTab}/>}
             
           </div>
 
@@ -22,7 +22,7 @@ function TranslationContent({outputType}) {
 
           {/* 오른쪽 패널 - 번역 텍스트 패널*/}
           <div className="flex-1 flex flex-col h-full">
-            <TranslatedTextPanel activeTab={activeTab} setActiveTab={setActiveTab} />
+            <TranslatedTextPanel activeTab={activeTab} setActiveTab={setActiveTab} outputType={outputType} />
           </div>
         </div>
       </div>
