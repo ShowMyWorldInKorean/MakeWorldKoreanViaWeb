@@ -1,5 +1,5 @@
-FROM python:3.10-slim
-
+FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+ENV DEBIAN_FRONTEND=noninteractive
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -39,4 +39,4 @@ RUN uv pip install "huggingface_hub==0.25.2"
 
 WORKDIR /app/srnet
 
-RUN uv pip install torch==2.0.1+cu117 torchvision==0.15.2+cu117 -f https://download.pytorch.org/whl/torch_stable.html
+# RUN uv pip install torch==2.0.1+cu117 torchvision==0.15.2+cu117 -f https://download.pytorch.org/whl/torch_stable.html
