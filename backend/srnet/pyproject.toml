@@ -4,10 +4,10 @@ version = "0.1.0"
 description = "Scene Text Replacement Network API"
 readme = "README.md"
 requires-python = ">=3.10"
+
 dependencies = [
     "fastapi==0.104.1",
     "uvicorn==0.24.0",
-    "python-dotenv==1.0.0",
     "matplotlib==3.7.3",
     "numpy==1.24.4",
     "opencv-python==4.5.4.60",
@@ -23,5 +23,5 @@ dependencies = [
     "torch==1.13.1",
     "torchvision==0.14.1",
     "tqdm==4.65.2",
-    "transformers==4.33.3",
+    "transformers==4.34.1"
 ]

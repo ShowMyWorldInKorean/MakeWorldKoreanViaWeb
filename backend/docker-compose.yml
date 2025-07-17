@@ -39,10 +39,29 @@ services:
       - .env
     volumes:
       - ./srnet:/app/srnet
+      - ./shared/indictrans_output:/data/indictrans_output  # 공유 볼륨 추가
     restart: always
     networks:
       - mwkvw-network
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+  mwkvw_indictrans:
+    platform: linux/amd64
+    container_name: mwkvw_indictrans
+    build: ./indictrans
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./indictrans:/app
+      - ./shared/indictrans_output:/data/indictrans_output
+    restart: always
+    networks:
+      - mwkvw-network
     deploy:
       resources:
         reservations:

@@ -86,7 +86,16 @@ def generate_i_t():
 
     for crop_name, label in tqdm(labels.items()):
         
-        label = label['trans_txt']
+        original_text = label['trans_txt']
+        translation_path = os.path.join('/data/indictrans_output', f"{crop_name}.txt")
+
+        if os.path.exists(translation_path):
+            with open(translation_path, "r", encoding="utf-8") as f:
+                label = f.read().strip()
+        else:
+            print(f"[⚠️ 경고] 번역 결과 없음: {translation_path}, 원문 사용")
+            label = original_text
+
         
         save_file_path = os.path.join(save_path, f'{crop_name}.png')
         temp_save_file_path = os.path.join(temp_save_path, f'{crop_name}.png')
