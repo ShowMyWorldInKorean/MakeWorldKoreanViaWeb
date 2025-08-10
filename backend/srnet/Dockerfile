@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
     gcc g++ build-essential python3-dev \
     libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 \
     git imagemagick \
-    && rm -rf /var/lib/apt/lists/*
+    fonts-nanum fonts-noto-cjk && rm -rf /var/lib/apt/lists/*\
+    && rm -rf /var/lib/apt/lists/* 
 
 # 2) uv 바이너리 복사
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
