@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # SAVE_PATH = os.getenv('SAVE_PATH')
-CHECKPOINT = "model/eng_kor2nd.model"
+CHECKPOINT = "models/eng_kor.model"
 
 
 def generate_crops():
@@ -82,27 +82,28 @@ def generate_i_t():
     image_size = '256x128'
 
     gray_bg_path = f'{SAVE_PATH}/i_t_utils/gray_bg_256x128.png'
-    font_name = 'Noto Sans'
+    # Noto Sans CJK KR (한글 지원)
+    font_name = 'Noto Sans CJK KR'
 
     for crop_name, label in tqdm(labels.items()):
-        
         label = label['trans_txt']
-        
+
         save_file_path = os.path.join(save_path, f'{crop_name}.png')
         temp_save_file_path = os.path.join(temp_save_path, f'{crop_name}.png')
-        
-        input_text_command = f'convert -alpha set -background "rgb(121,127,141)" pango:\'  \
-                            <span font_stretch="semicondensed" foreground="#000000" font=" {font_name} 30 ">{label.lower()}</span> \
-                            \' \png:-|convert -  \\( +clone \\) +swap  -background "rgb(121,127,141)" -layers merge  +repage png:-|\
-                            convert -   -trim +repage -resize {text_image_size} {temp_save_file_path}'
+
+        # pango에서 한글 폰트 강제 지정
+        input_text_command = f'convert -alpha set -background "rgb(121,127,141)" pango:\'\
+<span font_stretch="semicondensed" foreground="#000000" font="{font_name} 30">{label}</span>\
+\' png:-|convert -  \\( +clone \\) +swap -background "rgb(121,127,141)" -layers merge +repage png:-|\
+convert - -trim +repage -resize {text_image_size} {temp_save_file_path}'
 
         os.system(input_text_command.encode('utf-8'))
-                            
-        finalInputTextCommand = 'composite -gravity Center ' + f'{temp_save_file_path}' + ' ' + gray_bg_path
-        finalInputTextCommand += ' png:-|'
-        finalInputTextCommand += 'convert -  ' + save_file_path
+
+        finalInputTextCommand = f'composite -gravity Center {temp_save_file_path} {gray_bg_path} png:-|convert - {save_file_path}'
         os.system(finalInputTextCommand.encode('utf-8'))
+
     os.system(f'rm -rf {temp_save_path}')
+
 
 
 def make_masks():
@@ -212,14 +213,12 @@ def make_bg():
 
 def generate_o_t():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    G = Generator(in_channels = 3).to(device)
+    G = Generator(in_channels=3).to(device)
 
     G.eval()
-    checkpoint = torch.load(CHECKPOINT, map_location=torch.device(device))
+    checkpoint = torch.load(CHECKPOINT, map_location=device)
     G.load_state_dict(checkpoint['generator'])
 
-
-    # size = (128, 64)
     def infer(i_s, i_t, size, model, path):
         tmfr = To_tensor()
         i_s = io.imread(i_s)
@@ -227,52 +226,55 @@ def generate_o_t():
             i_s = np.repeat(i_s[:, :, np.newaxis], 3, axis=2)
         else:
             i_s = i_s[:, :, :3]
-        orig_i_s_size = i_s.shape
-        orig_i_s_size = (orig_i_s_size[1], orig_i_s_size[0])
+        orig_i_s_size = (i_s.shape[1], i_s.shape[0])
         i_s = cv2.resize(i_s, size)
 
         i_t = io.imread(i_t)
         i_t = cv2.resize(i_t, size)
         
         i_t, i_s = tmfr([i_t, i_s])
-
         i_t = i_t.unsqueeze(0).to(device)
         i_s = i_s.unsqueeze(0).to(device)
 
         with torch.no_grad():
             o_sk, o_t, o_f = model(i_t, i_s, (i_t.shape[2], i_t.shape[3]))
 
-        o_f = o_f.squeeze(0).detach().to('cpu').permute(1, 2, 0).numpy()
-        o_f = 127.5*o_f + 127.5
+        o_f = o_f.squeeze(0).detach().cpu().permute(1, 2, 0).numpy()
+        o_f = 127.5 * o_f + 127.5
         o_f = o_f.astype('uint8')
         o_f = cv2.resize(o_f, orig_i_s_size)
 
-        o_t = o_t.squeeze(0).detach().to('cpu').permute(1, 2, 0).numpy()
-        o_t = 127.5*o_t + 127.5
+        o_t = o_t.squeeze(0).detach().cpu().permute(1, 2, 0).numpy()
+        o_t = 127.5 * o_t + 127.5
         o_t = o_t.astype('uint8')
         o_t = cv2.resize(o_t, orig_i_s_size)
-        o_t = cv2.cvtColor(o_t, cv2.COLOR_BGR2GRAY) 
-        _, o_t = cv2.threshold(o_t, 125, 255, cv2.THRESH_BINARY) 
-        
-        o_sk = o_sk.squeeze(0).detach().to('cpu').permute(1, 2, 0).numpy()
-        o_sk = 255.0*o_sk
-        o_sk = o_sk.astype('uint8')
+        o_t = cv2.cvtColor(o_t, cv2.COLOR_BGR2GRAY)
+        _, o_t = cv2.threshold(o_t, 125, 255, cv2.THRESH_BINARY)
+
+        o_sk = o_sk.squeeze(0).detach().cpu().permute(1, 2, 0).numpy()
+        o_sk = (255.0 * o_sk).astype('uint8')
         o_sk = cv2.resize(o_sk, orig_i_s_size)
 
-        plt.imsave(path, o_f)
+        # 저장 시 에러 추적이 가능하도록 try 추가
+        try:
+            plt.imsave(path, o_f)
+        except Exception as e:
+            print(f"[❌ ERROR] Failed to save {path}: {e}")
 
     SAVE_PATH = os.getenv('SAVE_PATH')
     save_dir = f'{SAVE_PATH}/o_t'
     os.makedirs(save_dir, exist_ok=True)
+
     for img_name in tqdm(os.listdir(f'{SAVE_PATH}/i_s'), desc="samples processed"):
         idx = img_name.split('.')[0]
         i_s_path = os.path.join(f'{SAVE_PATH}/i_s', f'{idx}.png')
-        i_t_path = os.path.join(f'{SAVE_PATH}/i_t', f'{idx}.png')
-        out_path_1 = os.path.join(save_dir, f'{idx}.png') 
+        i_t_path = os.path.join(f'{SAVE_PATH}/tmp/i_t', f'{idx}.png')
+        out_path_1 = os.path.join(save_dir, f'{idx}.png')
         try:
             infer(i_s_path, i_t_path, (128, 64), G, out_path_1)
-        except:
-            print(idx, "failed to generate")
+        except Exception as e:
+            print(f"[❌ ERROR] {idx} failed to generate: {e}")
+
 
 
 def blend_o_t_bg():
