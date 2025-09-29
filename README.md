@@ -53,9 +53,9 @@ npm run dev
 | 구분 | 이미지 | 설명 |
 |------|--------|------|
 | 원본 | ![원본](docs/assets/274.jpg) | 원본 영문 이미지 |
-| 번역 결과 | ![번역 결과](docs/assets/IMG_1941 2.JPG) | 본 프로그램으로 번역된 결과 |
+| 번역 결과 | ![번역 결과](docs/assets/IMG_1941.JPG) | 본 프로그램으로 번역된 결과 |
 | 구글 번역 | ![구글 번역](docs/assets/274구글.jpg) | 구글 번역 결과 |
-| ChatGPT | ![ChatGPT](docs/assets/ChatGPT Image 2025년 9월 29일 오후 03_16_46.png) | ChatGPT 번역 결과 |
+| ChatGPT | ![ChatGPT](docs/assets/ChatGPT.png) | ChatGPT 번역 결과 |
 
 - 추가 이미지들: `docs/assets/` 폴더 참조
 
